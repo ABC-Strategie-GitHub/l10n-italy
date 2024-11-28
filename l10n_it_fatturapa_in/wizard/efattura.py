@@ -77,11 +77,30 @@ def collect_types():
     collect_elements_by_type_query(datetime_types, "//*[@type='xs:dateTime']")
 
 
+# def parse_datetime(s):
+#     m = re.match(r"(.*?)(\+|-)(\d+):(\d+)", s)
+#     if m:
+#         s = "".join(m.group(1, 2, 3, 4))
+#     return datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f%z")
+
 def parse_datetime(s):
-    m = re.match(r"(.*?)(\+|-)(\d+):(\d+)", s)
+    # Gestisci il caso in cui ci sia un 'Z' che indica UTC
+    if s.endswith('Z'):
+        s = s[:-1] + '+00:00'  # Sostituisci 'Z' con '+00:00'
+    
+    # Aggiungere un controllo per gestire il caso in cui non ci sono frazioni di secondo o fuso orario
+    m = re.match(r"(.*?)([+-]\d{2}):(\d{2})$", s)  # Controlla se è presente un fuso orario nel formato "+hh:mm"
     if m:
-        s = "".join(m.group(1, 2, 3, 4))
-    return datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f%z")
+        s = "".join(m.group(1, 2, 3))  # Rimuove i ":" dal fuso orario
+        try:
+            return datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f%z")
+        except ValueError:
+            return datetime.strptime(s, "%Y-%m-%dT%H:%M:%S%z")
+    else:
+        try:
+            return datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f")  # Prova con frazioni di secondo
+        except ValueError:
+            return datetime.strptime(s, "%Y-%m-%dT%H:%M:%S")  # Prova senza frazioni di secondo
 
 
 def _fix_xmlstring(xml_string):
