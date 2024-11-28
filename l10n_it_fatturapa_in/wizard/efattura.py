@@ -83,10 +83,17 @@ def collect_types():
 #         s = "".join(m.group(1, 2, 3, 4))
 #     return datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%f%z")
 
+import re
+from datetime import datetime
+
 def parse_datetime(s):
     # Gestisci il caso in cui ci sia un 'Z' che indica UTC
     if s.endswith('Z'):
         s = s[:-1] + '+00:00'  # Sostituisci 'Z' con '+00:00'
+    
+    # Aggiungi un controllo per il formato del fuso orario senza separatori ":" e aggiungi il ":" dove necessario
+    if re.search(r"[+-]\d{4}$", s):  # Se il fuso orario è nel formato "+0000"
+        s = s[:-4] + ":" + s[-4:]  # Aggiungi ":" prima degli ultimi 2 numeri
     
     # Aggiungere un controllo per gestire il caso in cui non ci sono frazioni di secondo o fuso orario
     m = re.match(r"(.*?)([+-]\d{2}):(\d{2})$", s)  # Controlla se è presente un fuso orario nel formato "+hh:mm"
