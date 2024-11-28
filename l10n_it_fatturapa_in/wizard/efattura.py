@@ -104,7 +104,9 @@ def parse_datetime(s):
         return datetime.strptime(s, "%Y-%m-%dT%H:%M:%S%z")  # Con fuso orario
     except ValueError:
         try:
-            return datetime.strptime(s, "%Y-%m-%dT%H:%M:%S")  # Senza fuso orario
+            # Aggiungi un fuso orario predefinito alle date naive (es. UTC)
+            naive_dt = datetime.strptime(s, "%Y-%m-%dT%H:%M:%S")
+            return naive_dt.replace(tzinfo=pytz.UTC)  # Rendi offset-aware
         except ValueError as e:
             raise ValueError(f"Formato data non supportato: {s}") from e
 
