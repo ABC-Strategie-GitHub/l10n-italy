@@ -54,7 +54,7 @@ class FatturaPAAttachmentIn(models.Model):
 
     e_invoice_parsing_error = fields.Text(
         compute="_compute_e_invoice_parsing_error",
-        store=True,
+        store=False, #TO-DO: DA METTERE TRUE
     )
 
     is_self_invoice = fields.Boolean(
